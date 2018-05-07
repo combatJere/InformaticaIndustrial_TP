@@ -28,21 +28,10 @@ public class UDPManager : MonoBehaviour
         //this.service = new UdpService(5554);
         //udp = new UdpClient(5554);
 
-        cubemove = cube.GetComponent<CubeMove>();
+        //cubemove = cube.GetComponent<CubeMove>();
         thread = new Thread(new ThreadStart(ThreadMethod));
         thread.Start();
-
-        //Client = new UdpClient(5554);
-
-        //try
-        //{
-        //    print("JERE");
-        //    Client.BeginReceive(new AsyncCallback(recv), null);
-        //}
-        //catch (Exception e)
-        //{
-        //    print(e.ToString());
-        //}
+        
 
     }
 
@@ -68,33 +57,25 @@ public class UDPManager : MonoBehaviour
         //    print(coordenadas.X +", " + coordenadas.Y +", " + coordenadas.Z);
         //}
 
-        print(precessData);
+        //print(precessData);
         //if (precessData)
         //{
-        /*lock object to make sure there data is 
-         *not being accessed from multiple threads at thesame time*/
-        lock (lockObject)
-        {
-            //precessData = false;
-            //cube.SendMessage("Move");
-            //Vector3 moveVector = new Vector3(coord.X, coord.Y, coord.Z);
-            //transform.Rotate(moveVector);
+            /*lock object to make sure there data is 
+             *not being accessed from multiple threads at thesame time*/
+            lock (lockObject)
+            {
+                precessData = false;
 
-            Vector3 temp = transform.rotation.eulerAngles;
-        temp.x = coord.Y;
-        temp.y = coord.Z;
-        temp.z = coord.X;
-        Debug.Log("TEMP: X = " + temp.x + ", Y = " + temp.y + ", Z=" + temp.z);
-        transform.rotation = Quaternion.Euler(temp);
-        // or
-        //cubemove.Move();
+                Vector3 temp = transform.rotation.eulerAngles;
+                temp.x = coord.Y;
+                temp.y = coord.Z;
+                temp.z = coord.X;
+                //Debug.Log("TEMP: X = " + temp.x + ", Y = " + temp.y + ", Z=" + temp.z);
+                transform.rotation = Quaternion.Euler(temp);
 
-        //Process received data
-        Debug.Log("Received: " + returnData);
-
-        ////Reset it for next read(OPTIONAL)
-        returnData = "";
-        }
+                ////Reset it for next read(OPTIONAL)
+                returnData = "";
+            }
         //}
     }
 
@@ -108,26 +89,28 @@ public class UDPManager : MonoBehaviour
     {
         print("HOLAAAAAAAAAA");
         udp = new UdpClient(5554);
+        byte[] receiveBytes =  new byte[0];
+
         while (true)
         {
-            print("JERE_0");
             IPEndPoint RemoteIpEndPoint = new IPEndPoint(IPAddress.Any, 5554);
-            print("JERE_1");
-            byte[] receiveBytes = udp.Receive(ref RemoteIpEndPoint);
-            print("JERE_2");
+            
+            //if (udp.Available < 1)
+            //{
+            //    print("Me Trabe al leer el puerto");
+            //    thread.Abort();
+            //    return;
+            //}
+            
+            receiveBytes = udp.Receive(ref RemoteIpEndPoint);
+            
             /*lock object to make sure there data is 
-            *not being accessed from multiple threads at thesame time*/
+             *not being accessed from multiple threads at thesame time*/
             lock (lockObject)
             {
                 returnData = Encoding.ASCII.GetString(receiveBytes);
-
-                //Debug.Log(returnData);
-                if (returnData == "1\n")
-                {
-                    //Done, notify the Update function
-                    precessData = true;
-                }
-
+                print(returnData);
+                
                 //Debug.Log(returnData);
 
                 if (returnData.Split(',').Length > 1)
@@ -141,8 +124,22 @@ public class UDPManager : MonoBehaviour
                     coord.X = (float)double.Parse(returnData.Split(',')[2]) * 9;
                     coord.Y = (float)double.Parse(returnData.Split(',')[3]) * 9;
                     coord.Z = (float)double.Parse(returnData.Split(',')[4]) * 9;
+
+                    //[6] Gyroscope x
+                    //[7] gyro y
+                    //[8] gyro z
+
+                    //[10] mag x
+                    //[11] mag y
+                    //[12] mag z
                 }
                 Debug.Log("COORD: X = " + coord.X + ", Y = " + coord.Y + ", Z=" + coord.Z);
+
+                if (returnData == "1\n")
+                {
+                    //Done, notify the Update function
+                    precessData = true;
+                }
             }
         }
     }

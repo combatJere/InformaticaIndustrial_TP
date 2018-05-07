@@ -54,6 +54,7 @@
      <Compile Include="Assets\Accelerometer.cs" />
      <Compile Include="Assets\Coordinates.cs" />
      <Compile Include="Assets\CubeMove.cs" />
+     <Compile Include="Assets\IMUDecoder.cs" />
      <Compile Include="Assets\UDPManager.cs" />
      <Compile Include="Assets\UdpService.cs" />
  <Reference Include="Facebook.Unity.Settings">

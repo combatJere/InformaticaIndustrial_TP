@@ -6,21 +6,19 @@ using System.Text;
 public class CubeMove : MonoBehaviour
 {
     static readonly object lockObject = new object();
-    private UdpService udp;
-    //private byte[] data = new byte[0];
+    private IUdpService udp;
 
     void Start()
     {
-        //udp = new UdpService(5554);
-        udp = new UdpService(5554, lockObject);
+        //udp = new UdpServiceOnDemand(5554);
+        udp = new UdpServiceThread(5554, lockObject);
     }
 
     void Update()
     {
         lock (lockObject)
         {
-            //var data = udp.ReceiveBroadcast();
-            var data = udp.ReceiveBroadcastThread();
+            var data = udp.ReceiveBroadcast();
 
             var msg = Encoding.ASCII.GetString(data);
             Debug.Log(msg);
